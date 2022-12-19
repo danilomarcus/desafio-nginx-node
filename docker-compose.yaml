@@ -7,8 +7,6 @@ services:
       context: ./node
     container_name: nodeserver
     entrypoint: dockerize -wait tcp://db:3306 -timeout 20s node index.js
-    networks:
-      - node-network
     volumes:
       - ./node:/usr/src/app  
       - /usr/src/app/node_modules
@@ -20,8 +18,6 @@ services:
     build:
       context: ./nginx
     container_name: ngproxy
-    networks:
-      - node-network
     ports:
       - "8080:80"
     depends_on:
@@ -38,9 +34,4 @@ services:
     environment:
       - MYSQL_DATABASE=nodedb
       - MYSQL_ROOT_PASSWORD=root
-    networks:
-      - node-network
-    
-networks:
-  node-network:
-    driver: bridge
+
