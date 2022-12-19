@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+
+  nodeserver:
+    build:
+      context: ./node
+    container_name: nodeserver
+    networks:
+      - node-network
+    volumes:
+      - ./node:/usr/src/app  
+    ports:
+      - "5000:5000"
+    # command: sh -c './wait-for db:3306 -- npm start'
+    depends_on:
+      - db  
+
+  nginx:
+    restart: always
+    build:
+      context: ./nginx
+    container_name: ngproxy
+    networks:
+      - node-network
+    ports:
+      - "8080:80"
+
+  db:
+    image: mysql:5.7
+    command: --innodb-use-native-aio=0 --explicit_defaults_for_timestamp
+    container_name: dbpeople
+    restart: always
+    tty: true
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=nodedb
+      - MYSQL_ROOT_PASSWORD=root
+    networks:
+      - node-network
+    
+networks:
+  node-network:
+    driver: bridge
