@@ -6,13 +6,12 @@ services:
     build:
       context: ./node
     container_name: nodeserver
-    # entrypoint: dockerize -wait tcp://db:3306 -timeout 20s docker-entrypoint.sh
+    entrypoint: dockerize -wait tcp://db:3306 -timeout 20s node index.js
     networks:
       - node-network
     volumes:
       - ./node:/usr/src/app  
-    ports:
-      - "5000:5000"
+      - /usr/src/app/node_modules
     depends_on:
       - db  
 
@@ -25,10 +24,12 @@ services:
       - node-network
     ports:
       - "8080:80"
+    depends_on:
+      - nodeserver  
 
   db:
     image: mysql:5.7
-    command: --innodb-use-native-aio=0 --explicit_defaults_for_timestamp
+    # command: --innodb-use-native-aio=0 --explicit_defaults_for_timestamp
     container_name: dbpeople
     restart: always
     tty: true
